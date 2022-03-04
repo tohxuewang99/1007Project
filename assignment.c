@@ -3,23 +3,25 @@
 
 int main() {
 	
-	int i, j, k, m, numProcesses = 10, waitTime[20], turnAroundTime[20], backupBurstTime[20], process[20];
-	int sum = 0, maxBurstTime = 0, arranged = 0, responseTime[20];
-	int burstTime[20] = {3,2,2,1,5,3,2,1,1,3}; // burst time for each process, currently manual input
-	int count = 0;
-	float avgWaitTime = 0, avgTurnAroundTime = 0, avgResponseTime = 0;
+	int i, j, k, m, numProcesses = 3, waitTime[20], turnAroundTime[20], backupBurstTime[20], backupArrivalTime[20], process[20];
+	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
+	int burstTime[20] = {9,7,11};				// burst time for each process, currently manual input
+	int arrivalTime[20] = {0,2,4};				// arrival time for each process, currently manual input
+
+	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0;
 	float timeSlice = 5;
 
 	for (i = 0; i < numProcesses; i++) {
-		process[i] = i;                        // number for the process
-		backupBurstTime[i] = burstTime[i];  
+		process[i] = i;                        			// number for the process
+		backupBurstTime[i] = burstTime[i];  			// backupBurstTime is also burst time but acts as temporary storage for the value of burst time
+		backupArrivalTime[i] = arrivalTime[i];			// backupArrivalTime is also arrival time but acts as temporary storage for the value of arrival time
 	}  
 	
 	for (j = 0; j < numProcesses; j++) {
 
 		for (k = j + 1; k < numProcesses; k++) {
 
-			if (burstTime[j] > burstTime[k]) {
+			if (burstTime[j] > burstTime[k]) {			// sorting of process number by shortest job first
 
 					arranged = burstTime[j];
 					backupBurstTime[j] = burstTime[j] = burstTime[k];
@@ -51,7 +53,7 @@ int main() {
 
 		for (i = 0; i < numProcesses; i++)  { 
 
-			if (burstTime[i] != 0) {                        // as long as burst time is not 0
+			if (burstTime[i] != 0) {                     // as long as burst time is not 0
 				
 				if (burstTime[i] <= timeSlice) {         // if burst time is smaller than time slice
 
@@ -71,41 +73,59 @@ int main() {
 
 	} 
 
+	float maxTurnAroundTime = turnAroundTime[0];
+	float maxWaitingTime = waitTime[0];
 
-	for (i = 0; i < numProcesses; i++)
-	{
-		waitTime[i] = turnAroundTime[i] - backupBurstTime[i]; // current process waiting time
-        avgWaitTime += waitTime[i];  // total waiting time
+	for (int i = 0; i < numProcesses; i++) {
+		waitTime[i] = turnAroundTime[i] - backupBurstTime[i];	// current process waiting time
+		if (waitTime[i] > maxWaitingTime) {
+			maxWaitingTime = waitTime[i];						// find maximum turnaround time
+		}
+        totalWaitTime += waitTime[i];  							// total waiting time
+	}
 
-        turnAroundTime[i] = waitTime[i] + backupBurstTime[i];
-		avgTurnAroundTime += turnAroundTime[i]; // total turnaround time
+	for (int j = 0; j < numProcesses; j++) {
+        turnAroundTime[j] = waitTime[j] + backupBurstTime[j];	// current process turnaround time
+		if (turnAroundTime[j] > maxTurnAroundTime) {
+			maxTurnAroundTime = turnAroundTime[j];				// find maximum turnaround time
+		}
+		totalTurnAroundTime += turnAroundTime[j]; 				// total turnaround time calculation
+	}
 
-		if (i == 0)
-		{
-			responseTime[i] == 0;
+	for (int k = 0; k < numProcesses; k++) {
+		if (k == 0) {
+			responseTime[k] == 0;
 		}
 		else {
-			responseTime[i] = (i * timeSlice) - burstTime[i - 1];
-        	avgResponseTime += responseTime[i];
+			responseTime[k] = (k * timeSlice) - burstTime[k - 1];
+        	totalResponseTime += responseTime[k]; 				// total response time calculation
 		}
+	}
+
+	for (int l = 0; l < numProcesses; l++) {
+		completionTime[l] = turnAroundTime[l] + arrivalTime[l];
+		totalCompletionTime += completionTime[l];				// total completionTime
+	}
         
 		
-	}
 
 	printf("\n\nSorted Round Robin Scheduling\n");
 
-	printf("\nPROCESS\t BURST TIME \t WAITING TIME \t TURNAROUND TIME \t RESPONSE TIME\n");
-	for(i = 0; i<numProcesses; i++){
-		printf("%d \t %d \t\t %d \t\t %d \t\t\t %d \n",process[i]+1, backupBurstTime[i], waitTime[i], turnAroundTime[i], responseTime[i]);
+	printf("\nPROCESS\t BURST TIME \t WAITING TIME \t TURNAROUND TIME");
+	printf("\tRESPONSE TIME \tCOMPLETION TIME\tARRIVAL TIME\n");
+	for(i = 0; i<numProcesses; i++) {
+		printf("%d\t %d\t\t %d\t\t %d\t\t",process[i]+1, backupBurstTime[i], waitTime[i], turnAroundTime[i]); 
+		printf("\t%d\t\t%d\t\t%d\n", responseTime[i], completionTime[i], backupArrivalTime[i]);
 	}
 
-    printf("\nAverage Turnaround Time = %f\n",avgTurnAroundTime / numProcesses);
-    printf("\nMaximum Turnaround Time = \n");  
-	printf("\nAverage Waiting Time= %f\n",avgWaitTime / numProcesses);
-    printf("\nMaximum Waiting Time= \n");
+    printf("\nAverage Turnaround Time = %.2f\n",totalTurnAroundTime / numProcesses);
+    printf("\nMaximum Turnaround Time = %.2f\n", maxTurnAroundTime);  
+	printf("\nAverage Waiting Time = %.2f\n",totalWaitTime / numProcesses);
+    printf("\nMaximum Waiting Time = %.2f\n", maxWaitingTime);
 
-	printf("\nAverage Time Slice %f\n", timeSlice);
-    printf("\nThe Average Response time: %.2f\n", avgResponseTime / numProcesses);
-	
+	printf("\nAverage Time Slice %.2f\n", timeSlice);
+    printf("\nThe Average Response time: %.2f\n", totalResponseTime / numProcesses);
+
 	return 0;
-} 
+}
+
