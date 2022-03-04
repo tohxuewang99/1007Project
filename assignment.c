@@ -1,15 +1,14 @@
-// CPU Scheduling Method: Round Robin (RR) and Shortest Job First (SJF)
-
+// CPU Scheduling Method: Round Robin (RR) and Shortest Job First (SJF) 
 #include<stdio.h> 
 
 int main() {
 	
 	int i, j, k, m, numProcesses = 10, waitTime[20], turnAroundTime[20], backupBurstTime[20], process[20];
-	int sum = 0, timeSlice = 5, maxBurstTime = 0, arranged = 0, responseTime[20];
+	int sum = 0, maxBurstTime = 0, arranged = 0, responseTime[20];
 	int burstTime[20] = {3,2,2,1,5,3,2,1,1,3}; // burst time for each process, currently manual input
-	
+	int count = 0;
 	float avgWaitTime = 0, avgTurnAroundTime = 0, avgResponseTime = 0;
-	float avgTimeSlice = 0;
+	float timeSlice = 5;
 
 	for (i = 0; i < numProcesses; i++) {
 		process[i] = i;                        // number for the process
@@ -37,10 +36,10 @@ int main() {
 
 		sum += burstTime[m];
 	}
-	avgTimeSlice = sum/numProcesses; 
+	// timeSlice = sum / numProcesses; 
 
 
-	 maxBurstTime = burstTime[0];  
+	maxBurstTime = burstTime[0];  
 
 	for  (i = 1; i < numProcesses; i++) {        // get largest burst time
 		if (maxBurstTime < burstTime[i]) {
@@ -48,27 +47,30 @@ int main() {
         } 
     } 
 	
-	for (j = 0; j < (maxBurstTime / avgTimeSlice) + 1; j++)  {   
+	for (j = 0; j < (maxBurstTime / timeSlice) + 1; j++)  {   
 
 		for (i = 0; i < numProcesses; i++)  { 
 
 			if (burstTime[i] != 0) {                        // as long as burst time is not 0
 				
-				if (burstTime[i] <= avgTimeSlice) {         // if burst time is smaller than time slice
+				if (burstTime[i] <= timeSlice) {         // if burst time is smaller than time slice
 
 					turnAroundTime[i] = arranged + burstTime[i];            // turnaround time = arranged value + current burst time
 					arranged = arranged + burstTime[i];                     // arranged value = last arranged value + current burst time
 					burstTime[i] = 0;                                       // reset current burst time
+					
 				}
-				else if (burstTime[i] > avgTimeSlice) {     // if burst time is larger than time slice
+				else if (burstTime[i] > timeSlice) {     // if burst time is larger than time slice
 
-					burstTime[i] = burstTime[i] - avgTimeSlice;             // current burst time = burst time - time slice
-					arranged = arranged + avgTimeSlice;                     // set arranged value = last arranged value + time slice
+					burstTime[i] = burstTime[i] - timeSlice;             // current burst time = burst time - time slice
+					arranged = arranged + timeSlice;                     // set arranged value = last arranged value + time slice
 				}
+				
             }  
 		}
 
 	} 
+
 
 	for (i = 0; i < numProcesses; i++)
 	{
@@ -78,8 +80,16 @@ int main() {
         turnAroundTime[i] = waitTime[i] + backupBurstTime[i];
 		avgTurnAroundTime += turnAroundTime[i]; // total turnaround time
 
-        responseTime[i] = (i*timeSlice) - 0;
-        avgResponseTime += responseTime[i];
+		if (i == 0)
+		{
+			responseTime[i] == 0;
+		}
+		else {
+			responseTime[i] = (i * timeSlice) - burstTime[i - 1];
+        	avgResponseTime += responseTime[i];
+		}
+        
+		
 	}
 
 	printf("\n\nSorted Round Robin Scheduling\n");
@@ -89,12 +99,12 @@ int main() {
 		printf("%d \t %d \t\t %d \t\t %d \t\t\t %d \n",process[i]+1, backupBurstTime[i], waitTime[i], turnAroundTime[i], responseTime[i]);
 	}
 
-    printf("\nAverage Turnaround Time = %f\n",avgTurnAroundTime/numProcesses);
+    printf("\nAverage Turnaround Time = %f\n",avgTurnAroundTime / numProcesses);
     printf("\nMaximum Turnaround Time = \n");  
-	printf("\nAverage Waiting Time= %f\n",avgWaitTime/numProcesses);
+	printf("\nAverage Waiting Time= %f\n",avgWaitTime / numProcesses);
     printf("\nMaximum Waiting Time= \n");
 
-	printf("\nAverage Time Slice %f\n", avgTimeSlice);
+	printf("\nAverage Time Slice %f\n", timeSlice);
     printf("\nThe Average Response time: %.2f\n", avgResponseTime / numProcesses);
 	
 	return 0;
