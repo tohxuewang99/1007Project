@@ -3,7 +3,7 @@
 
 int main() {
 	
-	int i, j, k, m, numProcesses = 5, waitTime[20], turnAroundTime[20], backupBurstTime[20], backupArrivalTime[20], process[20];
+	int i, j, k, m, numProcesses = 5, waitTime[20], turnAroundTime[20], backupBurstTime[20], process[20];
 	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
 	int burstTime[20] = {9, 7, 11, 8, 3};				// burst time for each process, currently manual input
 	int arrivalTime[20] = {0, 2, 4, 1, 1};			// arrival time for each process, currently manual input
@@ -14,7 +14,7 @@ int main() {
 	for (i = 0; i < numProcesses; i++) {
 		process[i] = i + 1;                        		// number for the process
 		backupBurstTime[i] = burstTime[i];  			// backupBurstTime is also burst time but acts as temporary storage for the value of burst time
-		backupArrivalTime[i] = arrivalTime[i];			// backupArrivalTime is also arrival time but acts as temporary storage for the value of arrival time
+		
 	}  
 	
 	for (j = 0; j < numProcesses; j++) {
@@ -92,7 +92,7 @@ int main() {
 	float maxWaitingTime = waitTime[0];
 
 	for (int i = 0; i < numProcesses; i++) {
-		waitTime[i] = turnAroundTime[i] - backupBurstTime[i];	// current process waiting time
+		waitTime[i] = turnAroundTime[i] - backupBurstTime[i] - arrivalTime[i];	// current process waiting time
 		if (waitTime[i] > maxWaitingTime) {
 			maxWaitingTime = waitTime[i];						// find maximum turnaround time
 		}
@@ -100,7 +100,7 @@ int main() {
 	}
 
 	for (int j = 0; j < numProcesses; j++) {
-        turnAroundTime[j] = waitTime[j] + backupBurstTime[j];	// current process turnaround time
+		turnAroundTime[j] = turnAroundTime[j] - arrivalTime[j];
 		if (turnAroundTime[j] > maxTurnAroundTime) {
 			maxTurnAroundTime = turnAroundTime[j];				// find maximum turnaround time
 		}
@@ -118,7 +118,7 @@ int main() {
 	}
 
 	for (int l = 0; l < numProcesses; l++) {
-		completionTime[l] = turnAroundTime[l] - arrivalTime[l];
+		completionTime[l] = turnAroundTime[l] + arrivalTime[l];
 		totalCompletionTime += completionTime[l];				// total completionTime
 	}
         
