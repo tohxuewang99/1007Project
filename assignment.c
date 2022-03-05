@@ -3,10 +3,10 @@
 
 int main() {
 	
-	int i, j, k, m, numProcesses = 3, waitTime[20], turnAroundTime[20], backupBurstTime[20], backupArrivalTime[20], process[20];
+	int i, j, k, m, numProcesses = 4, waitTime[20], turnAroundTime[20], backupBurstTime[20], backupArrivalTime[20], process[20];
 	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
-	int burstTime[20] = {9, 7, 11};				// burst time for each process, currently manual input
-	int arrivalTime[20] = {0, 2, 4};			// arrival time for each process, currently manual input
+	int burstTime[20] = {9, 7, 11, 3};				// burst time for each process, currently manual input
+	int arrivalTime[20] = {0, 2, 4, 1};			// arrival time for each process, currently manual input
 
 	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0;
 	float timeSlice = 5;
@@ -21,7 +21,21 @@ int main() {
 
 		for (k = j + 1; k < numProcesses; k++) {
 
-			if (burstTime[j] > burstTime[k]) {			// sorting of process number by shortest job first
+			if (arrivalTime[j] > arrivalTime[k]) {
+				arranged = burstTime[j];
+				backupBurstTime[j] = burstTime[j] = burstTime[k];
+				backupBurstTime[k] = burstTime[k] = arranged;
+
+				arranged = process[j];
+				process[j] = process[k];
+				process[k] = arranged;
+
+				arranged = arrivalTime[j];
+				arrivalTime[j] = arrivalTime[k];
+				arrivalTime[k] = arranged;
+			}
+			
+			else if (arrivalTime[j] == arrivalTime[k] && burstTime[j] > burstTime[k]) {			// sorting of process number by shortest job first
 
 					arranged = burstTime[j];
 					backupBurstTime[j] = burstTime[j] = burstTime[k];
@@ -42,7 +56,6 @@ int main() {
 
 		sum += burstTime[m];
 	}
-
 	maxBurstTime = burstTime[0];  
 
 	for  (i = 1; i < numProcesses; i++) {        // get largest burst time
