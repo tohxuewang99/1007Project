@@ -1,11 +1,41 @@
 // CPU Scheduling Method: Round Robin (RR) and Shortest Job First (SJF) 
-#include<stdio.h> 
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<stdarg.h>
+#include<ctype.h>
 
-int main() {
+int main(int argc, char *argv[]) {
+	
+	FILE *file;
+	char *filename;
+	char ch;
+	
+	if (argc < 2) {					// Check if a filename has been specified in the command
+        printf("Missing Filename\n");
+        return(1);
+	}
+	else {
+        filename = argv[1];
+        printf("Filename : %s\n", filename);
+	}
+	
+	file = fopen(filename,"r");		// Open file in read-only mode
+	
+	if (file) {						// If file opened successfully, then print the contents
+        printf("File contents: \n");
+        while ((ch = fgetc(file)) != EOF) {
+			printf("%c",ch);
+        }
+		fclose(file);
+    }
+	else {
+		printf("Failed to open the file\n");
+    }
 	
 	int i, j, k, m, numProcesses = 5, waitTime[20], turnAroundTime[20], backupBurstTime[20], process[20];
 	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
-	int burstTime[20] = {9, 7, 11, 8, 3};				// burst time for each process, currently manual input
+	int burstTime[20] = {9, 7, 11, 8, 3};			// burst time for each process, currently manual input
 	int arrivalTime[20] = {0, 2, 4, 1, 1};			// arrival time for each process, currently manual input
 
 	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0;
