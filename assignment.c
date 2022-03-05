@@ -3,10 +3,10 @@
 
 int main() {
 	
-	int i, j, k, m, numProcesses = 4, waitTime[20], turnAroundTime[20], backupBurstTime[20], backupArrivalTime[20], process[20];
+	int i, j, k, m, numProcesses = 5, waitTime[20], turnAroundTime[20], backupBurstTime[20], backupArrivalTime[20], process[20];
 	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
-	int burstTime[20] = {9, 7, 11, 3};				// burst time for each process, currently manual input
-	int arrivalTime[20] = {0, 2, 4, 1};			// arrival time for each process, currently manual input
+	int burstTime[20] = {9, 7, 11, 8, 3};				// burst time for each process, currently manual input
+	int arrivalTime[20] = {0, 2, 4, 1, 1};			// arrival time for each process, currently manual input
 
 	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0;
 	float timeSlice = 5;
