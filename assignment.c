@@ -5,38 +5,69 @@
 #include<stdarg.h>
 #include<ctype.h>
 
-int main(int argc, char *argv[]) {
-	
+int main(int argc, char *argv[])
+{
 	FILE *file;
-	char *filename;
-	char ch;
-	
+	char *filename, *token;
+    char ch, buffer[10], s[10] = " ";
+
+    int lines = 1, numProcesses = 1;
+	int *arrivalTime = (int* ) malloc(lines * sizeof(int));
+    int *burstTime = (int* ) malloc(lines * sizeof(int));
+
 	if (argc < 2) {					// Check if a filename has been specified in the command
         printf("Missing Filename\n");
         return(1);
 	}
 	else {
         filename = argv[1];
-        printf("Filename : %s\n", filename);
+        // printf("Filename : %s\n", filename);
 	}
+
+    file = fopen(filename, "r");
 	
-	file = fopen(filename,"r");		// Open file in read-only mode
-	
-	if (file) {						// If file opened successfully, then print the contents
-        printf("File contents: \n");
-        while ((ch = fgetc(file)) != EOF) {
-			printf("%c",ch);
-        }
-		fclose(file);
+    if (file == NULL) {
+        printf("Missing file\n");
+        return 0;
     }
-	else {
-		printf("Failed to open the file\n");
+
+    for (ch = fgetc(file); ch != EOF; ch = getc(file)){
+        if (ch == '\n' || ch == '\r') {					// count number of lines
+            lines += 1;
+			numProcesses = numProcesses + 1;			// scale number of processes
+         }
     }
+
+	int temp_lines;
+    lines = temp_lines;
+	temp_lines = 0;
+    fclose(file);
+
+    file = fopen(filename, "r");
+    if(file == NULL) {
+        printf("Missing file\n");
+        return 0;
+    }
+
+    while(fgets(buffer, 10, file)) {
+        buffer[strcspn(buffer, "\n")] = 0;			// look for  first occurence of new line within the buffer
+		buffer[strcspn(buffer, "\r")] = 0;			// look for  first occurence of carriage return within the buffer
+
+        token = strtok(buffer, s);					// break into token based on space
+        arrivalTime[temp_lines] = atoi(token);
+
+        token = strtok(NULL, s);					// break into token based on space
+        burstTime[temp_lines] = atoi(token);
+
+        temp_lines++;
+    }
+
+    fclose(file);
 	
-	int i, j, k, m, numProcesses = 5, waitTime[20], turnAroundTime[20], backupBurstTime[20], process[20];
+	int i, j, k, m, waitTime[20], turnAroundTime[20], backupBurstTime[20], process[20];
 	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
-	int burstTime[20] = {9, 7, 11, 8, 3};			// burst time for each process, currently manual input
-	int arrivalTime[20] = {0, 2, 4, 1, 1};			// arrival time for each process, currently manual input
+	// int burstTime[20] = {9, 7, 11, 8, 3};			// burst time for each process, currently manual input
+	// int arrivalTime[20] = {0, 2, 4, 1, 1};			// arrival time for each process, currently manual input
 
 	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0;
 	float timeSlice = 5;
@@ -171,6 +202,8 @@ int main(int argc, char *argv[]) {
 	printf("\nAverage Time Slice %.2f\n", timeSlice);
     printf("\nThe Average Response time: %.2f\n", totalResponseTime / numProcesses);
 
+	free(arrivalTime);
+	free(burstTime);
+
 	return 0;
 }
-
