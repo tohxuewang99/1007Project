@@ -66,11 +66,15 @@ int main(int argc, char *argv[])
 	
 	int i, j, k, m, waitTime[20], turnAroundTime[20], backupBurstTime[20], process[20];
 	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
-	// int burstTime[20] = {9, 7, 11, 8, 3};			// burst time for each process, currently manual input
-	// int arrivalTime[20] = {0, 2, 4, 1, 1};			// arrival time for each process, currently manual input
-
 	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0;
-	float timeSlice = 5;
+	double timeSlice;
+
+	printf("Enter the time quantum: ");
+	scanf("%lf", &timeSlice);
+	if (timeSlice < 1) {
+		printf("Time quantum cannot be equal to 0.\n");
+		exit(1);
+	}
 
 	for (i = 0; i < numProcesses; i++) {
 		process[i] = i + 1;                        		// number for the process
@@ -170,7 +174,7 @@ int main(int argc, char *argv[])
 
 	for (int k = 0; k < numProcesses; k++) {
 		if (k == 0) {
-			responseTime[k] == 0;
+			responseTime[k] = 0;
 		}
 		else {
 			responseTime[k] = (k * timeSlice) - burstTime[k - 1];
