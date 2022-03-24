@@ -12,8 +12,10 @@ int main(int argc, char *argv[])
     char ch, buffer[10], s[10] = " ";
 
     int lines = 1, numProcesses = 1;
-	int *arrivalTime = (int* ) malloc(lines * sizeof(int));
-    int *burstTime = (int* ) malloc(lines * sizeof(int));
+	int arrivalTime[50];
+	int burstTime[50];
+	// int *arrivalTime = (int* ) malloc(lines * sizeof(int));
+    // int *burstTime = (int* ) malloc(lines * sizeof(int));
 
 	if (argc < 2) {					// Check if a filename has been specified in the command
         printf("Missing Filename\n");
@@ -64,22 +66,13 @@ int main(int argc, char *argv[])
 
     fclose(file);
 	
-	int i, j, k, m, waitTime[20], turnAroundTime[20], backupBurstTime[20], process[20];
+	int i, j, k, m, waitTime[20], turnAroundTime[20], dynamicSlicer[20], process[20], backupBurstTime[20];
 	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
-	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0;
-	double timeSlice;
-
-	printf("Enter the time quantum: ");
-	scanf("%lf", &timeSlice);
-	if (timeSlice < 1) {
-		printf("Time quantum cannot be equal to 0.\n");
-		exit(1);
-	}
+	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0, mediumBT = 0;
 
 	for (i = 0; i < numProcesses; i++) {
 		process[i] = i + 1;                        		// number for the process
 		backupBurstTime[i] = burstTime[i];  			// backupBurstTime is also burst time but acts as temporary storage for the value of burst time
-		
 	}  
 	
 	for (j = 0; j < numProcesses; j++) {
@@ -118,34 +111,42 @@ int main(int argc, char *argv[])
 	}
 	arranged = 0;
 	for (m = 0; m < numProcesses; m++) {
-
 		sum += burstTime[m];
 	}
 	maxBurstTime = burstTime[0];  
 
-	for  (i = 1; i < numProcesses; i++) {        // get largest burst time
+	for (i = 1; i < numProcesses; i++) {        // get largest burst time
 		if (maxBurstTime < burstTime[i]) {
 			 maxBurstTime = burstTime[i];
         } 
-    } 
-	
-	for (j = 0; j < (maxBurstTime / timeSlice) + 1; j++)  {   
+    }
+
+    if (sum % numProcesses == 0) {
+        mediumBT = sum / numProcesses;
+    }
+    else {
+        mediumBT = (sum / numProcesses) + 1;
+    }
+    
+
+    
+	for (j = 0; j < (maxBurstTime / mediumBT) + 1; j++)  {   
 
 		for (i = 0; i < numProcesses; i++)  { 
 
 			if (burstTime[i] != 0) {                     // as long as burst time is not 0
 				
-				if (burstTime[i] <= timeSlice) {         // if burst time is smaller than time slice
+				if (burstTime[i] <= mediumBT) {         // if burst time is smaller than time slice
 
 					turnAroundTime[i] = arranged + burstTime[i];            // turnaround time = arranged value + current burst time
 					arranged = arranged + burstTime[i];                     // arranged value = last arranged value + current burst time
 					burstTime[i] = 0;                                       // reset current burst time
 					
 				}
-				else if (burstTime[i] > timeSlice) {     // if burst time is larger than time slice
+				else if (burstTime[i] > mediumBT) {     // if burst time is larger than time slice
 
-					burstTime[i] = burstTime[i] - timeSlice;             // current burst time = burst time - time slice
-					arranged = arranged + timeSlice;                     // set arranged value = last arranged value + time slice
+					burstTime[i] = burstTime[i] - mediumBT;             // current burst time = burst time - time slice
+					arranged = arranged + mediumBT;                     // set arranged value = last arranged value + time slice
 				}
 				
             }  
@@ -177,7 +178,7 @@ int main(int argc, char *argv[])
 			responseTime[k] = 0;
 		}
 		else {
-			responseTime[k] = (k * timeSlice) - burstTime[k - 1];
+			responseTime[k] = (k * mediumBT) - burstTime[k - 1];
         	totalResponseTime += responseTime[k]; 				// total response time calculation
 		}
 	}
@@ -203,11 +204,12 @@ int main(int argc, char *argv[])
 	printf("\nAverage Waiting Time = %.2f\n",totalWaitTime / numProcesses);
     printf("\nMaximum Waiting Time = %.2f\n", maxWaitingTime);
 
-	printf("\nAverage Time Slice %.2f\n", timeSlice);
+	printf("\nAverage Time Slice %.2f\n", mediumBT);
     printf("\nThe Average Response time: %.2f\n", totalResponseTime / numProcesses);
 
-	free(arrivalTime);
-	free(burstTime);
+
+    // free(arrivalTime);
+    // free(burstTime);
 
 	return 0;
 }
