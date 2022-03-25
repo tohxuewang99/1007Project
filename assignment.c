@@ -33,10 +33,17 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+	int current_lines = 1, current_numProcesses = 1;
+
     for (ch = fgetc(file); ch != EOF; ch = getc(file)){
         if (ch == '\n' || ch == '\r') {					// count number of lines
-            lines += 1;
-			numProcesses = numProcesses + 1;			// scale number of processes
+            current_lines += 1;
+			current_numProcesses += 1;					// scale number of processes
+			lines = current_lines - 1;
+			numProcesses = current_numProcesses - 1;
+
+			// lines += 1;
+			// numProcesses += 1;
          }
     }
 
