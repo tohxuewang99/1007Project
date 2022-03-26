@@ -76,6 +76,8 @@ int main(int argc, char *argv[])
 	int i, j, k, m, waitTime[20], turnAroundTime[20], dynamicSlicer[20], process[20], backupBurstTime[20];
 	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
 	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0, mediumBT = 0;
+	float maxTurnAroundTime = 0;
+	float maxWaitingTime = 0;
 
 	for (i = 0; i < numProcesses; i++) {
 		process[i] = i + 1;                        		// number for the process
@@ -160,9 +162,6 @@ int main(int argc, char *argv[])
 		}
 
 	} 
-
-	float maxTurnAroundTime = turnAroundTime[0];
-	float maxWaitingTime = waitTime[0];
 
 	for (int i = 0; i < numProcesses; i++) {
 		waitTime[i] = turnAroundTime[i] - backupBurstTime[i] - arrivalTime[i];	// current process waiting time
