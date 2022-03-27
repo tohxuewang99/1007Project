@@ -144,10 +144,9 @@ int main(int argc, char *argv[])
     }
 
 	for (j = 0; j < numProcesses + 1; j++)  {  
-		// if (leastBurstTime == 0) {
-		// 	break;
-		// } 
+
 		timeSlice[j] = leastBurstTime;
+		
 		for (i = 0; i < numProcesses; i++)  { 
 			if (burstTime[i] != 0) {                     // as long as burst time is not 0
 
@@ -166,16 +165,24 @@ int main(int argc, char *argv[])
 				
             }  
 	    } 
-		totalTimeSlice = totalTimeSlice + timeSlice[j];
-		leastBurstTime = burstTime[j];
-		for (k = 1; k < numProcesses; k++) {        // smallest
-			if (leastBurstTime > burstTime[k] && burstTime[k] != 0) {
-				leastBurstTime = burstTime[k];
-        	}
-    	}
+		if (timeSlice[j] == 999)
+		{
+			totalTimeSlice = totalTimeSlice + (maxBurstTime - totalTimeSlice);
+		}
+		else {
+			totalTimeSlice = totalTimeSlice + timeSlice[j];
+			leastBurstTime = 999;
+			for (k = 1; k < numProcesses; k++) {        // smallest
+				if (leastBurstTime > burstTime[k] && burstTime[k] != 0) {
+					leastBurstTime = burstTime[k];
+				}
+			}
+		}
+		
 		// if (j == numProcesses) {
 		// 	break;
 		// }
+		
 	}
 	
         
@@ -201,7 +208,7 @@ int main(int argc, char *argv[])
 			responseTime[k] = 0;
 		}
 		else {
-			responseTime[k] = (k * timeSlice[0]) - burstTime[k - 1];
+			responseTime[k] = (k * timeSlice[0]) - burstTime[k - 1] - arrivalTime[k];
         	totalResponseTime += responseTime[k]; 				// total response time calculation
 		}
 	}
@@ -210,6 +217,9 @@ int main(int argc, char *argv[])
 		completionTime[l] = turnAroundTime[l] + arrivalTime[l];
 		totalCompletionTime += completionTime[l];				// total completionTime
 	}
+
+		
+
         
 		
 
