@@ -74,8 +74,8 @@ int main(int argc, char *argv[])
     fclose(file);
 	
 	int i, j, k, m, waitTime[20], turnAroundTime[20], dynamicSlicer[20], process[20], backupBurstTime[20];
-	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20], timeSlice[20], leastBurstTime = 0;
-	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0, totalTimeSlice = 0;
+	int sum = 0, maxBurstTime = 0, arranged = 0, count = 0, responseTime[20], completionTime[20];
+	float totalWaitTime = 0, totalTurnAroundTime = 0, totalResponseTime = 0, totalCompletionTime = 0, mediumBT = 0;
 	float maxTurnAroundTime = 0;
 	float maxWaitingTime = 0;
 
@@ -130,69 +130,45 @@ int main(int argc, char *argv[])
         } 
     }
 
-    // if (sum % numProcesses == 0) {
-    //     mediumBT = sum / numProcesses;
-    // }
-    // else {
-    //     mediumBT = (sum / numProcesses) + 1;
-    // }
-	leastBurstTime = burstTime[0]; 
-    for (i = 1; i < numProcesses; i++) {        // smallest
-		if (leastBurstTime > burstTime[i]) {
-			leastBurstTime = burstTime[i];
-        } 
+    if (sum % numProcesses == 0) {
+        mediumBT = sum / numProcesses;
     }
+    else {
+        mediumBT = (sum / numProcesses) + 1;
+    }
+    
 
-	for (j = 0; j < numProcesses + 1; j++)  {  
+    
+	for (j = 0; j < (maxBurstTime / mediumBT) + 1; j++)  {   
 
-		timeSlice[j] = leastBurstTime;
-		
 		for (i = 0; i < numProcesses; i++)  { 
-			if (burstTime[i] != 0) {                     // as long as burst time is not 0
 
-				if (burstTime[i] <= timeSlice[j]) {         // if burst time is smaller than time slice
+			if (burstTime[i] != 0) {                     // as long as burst time is not 0
+				
+				if (burstTime[i] <= mediumBT) {         // if burst time is smaller than time slice
 
 					turnAroundTime[i] = arranged + burstTime[i];            // turnaround time = arranged value + current burst time
 					arranged = arranged + burstTime[i];                     // arranged value = last arranged value + current burst time
 					burstTime[i] = 0;                                       // reset current burst time
 					
 				}
-				else if (burstTime[i] > timeSlice[j]) {     // if burst time is larger than time slice
+				else if (burstTime[i] > mediumBT) {     // if burst time is larger than time slice
 
-					burstTime[i] = burstTime[i] - timeSlice[j];             // current burst time = burst time - time slice
-					arranged = arranged + timeSlice[j];                     // set arranged value = last arranged value + time slice
+					burstTime[i] = burstTime[i] - mediumBT;             // current burst time = burst time - time slice
+					arranged = arranged + mediumBT;                     // set arranged value = last arranged value + time slice
 				}
 				
             }  
-	    } 
-		if (timeSlice[j] == 999)
-		{
-			totalTimeSlice = totalTimeSlice + (maxBurstTime - totalTimeSlice);
 		}
-		else {
-			totalTimeSlice = totalTimeSlice + timeSlice[j];
-			leastBurstTime = 999;
-			for (k = 1; k < numProcesses; k++) {        // smallest
-				if (leastBurstTime > burstTime[k] && burstTime[k] != 0) {
-					leastBurstTime = burstTime[k];
-				}
-			}
-		}
-		
-		// if (j == numProcesses) {
-		// 	break;
-		// }
-		
-	}
-	
-        
+
+	} 
 
 	for (int i = 0; i < numProcesses; i++) {
-			waitTime[i] = turnAroundTime[i] - backupBurstTime[i] - arrivalTime[i];	// current process waiting time
-			if (waitTime[i] > maxWaitingTime) {
-				maxWaitingTime = waitTime[i];						// find maximum turnaround time
-			}
-			totalWaitTime += waitTime[i]; // total waiting time
+		waitTime[i] = turnAroundTime[i] - backupBurstTime[i] - arrivalTime[i];	// current process waiting time
+		if (waitTime[i] > maxWaitingTime) {
+			maxWaitingTime = waitTime[i];						// find maximum turnaround time
+		}
+        totalWaitTime += waitTime[i];  							// total waiting time
 	}
 
 	for (int j = 0; j < numProcesses; j++) {
@@ -208,7 +184,7 @@ int main(int argc, char *argv[])
 			responseTime[k] = 0;
 		}
 		else {
-			responseTime[k] = (k * timeSlice[0]) - burstTime[k - 1] - arrivalTime[k];
+			responseTime[k] = (k * mediumBT) - burstTime[k - 1];
         	totalResponseTime += responseTime[k]; 				// total response time calculation
 		}
 	}
@@ -217,9 +193,6 @@ int main(int argc, char *argv[])
 		completionTime[l] = turnAroundTime[l] + arrivalTime[l];
 		totalCompletionTime += completionTime[l];				// total completionTime
 	}
-
-		
-
         
 		
 
@@ -237,7 +210,7 @@ int main(int argc, char *argv[])
 	printf("\nAverage Waiting Time = %.2f\n",totalWaitTime / numProcesses);
     printf("\nMaximum Waiting Time = %.2f\n", maxWaitingTime);
 
-	printf("\nAverage Time Slice %.2f\n", totalTimeSlice / numProcesses);
+	printf("\nAverage Time Slice %.2f\n", mediumBT);
     printf("\nThe Average Response time: %.2f\n", totalResponseTime / numProcesses);
 
 
